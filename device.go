@@ -4,6 +4,7 @@
 package evdev
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"unsafe"
@@ -99,7 +100,11 @@ func (d *Device) Test(set Bitset, values ...int) bool {
 func (d *Device) Name() string {
 	var str [256]byte
 	ioctl(d.fd.Fd(), _EVIOCGNAME(256), unsafe.Pointer(&str[0]))
-	return string(str[:])
+	end := bytes.IndexByte(str[:], 0)
+	if end == -1 {
+		return str[:]
+	}
+	return string(str[:end])
 }
 
 // Path returns the physical path of the device.
@@ -126,7 +131,11 @@ func (d *Device) Name() string {
 func (d *Device) Path() string {
 	var str [256]byte
 	ioctl(d.fd.Fd(), _EVIOCGPHYS(len(str)), unsafe.Pointer(&str[0]))
-	return string(str[:])
+	end := bytes.IndexByte(str[:], 0)
+	if end == -1 {
+		return str[:]
+	}
+	return string(str[:end])
 }
 
 // Serial returns the unique serial code for the device.
@@ -134,7 +143,11 @@ func (d *Device) Path() string {
 func (d *Device) Serial() string {
 	var str [256]byte
 	ioctl(d.fd.Fd(), _EVIOCGUNIQ(len(str)), unsafe.Pointer(&str[0]))
-	return string(str[:])
+	end := bytes.IndexByte(str[:], 0)
+	if end == -1 {
+		return str[:]
+	}
+	return string(str[:end])
 }
 
 // Version returns version information for the device driver.
